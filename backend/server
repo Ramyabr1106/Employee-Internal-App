@@ -1,0 +1,106 @@
+const express = require('express');
+const mysql = require('mysql');
+const cors = require('cors');
+const path = require('path');
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Start server
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+// Set up MySQL connection
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'employeeform',
+});
+
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to database:', err);
+    return;
+  }
+  console.log('Connected to MySQL database');
+});
+
+// Create table if not exists
+const createTableQuery = `
+  CREATE TABLE IF NOT EXISTS employee_table (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date DATE NOT NULL,
+    loginTime VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    mobileNumber VARCHAR(255) NOT NULL,
+    logoutTime VARCHAR(255),
+    sessionType VARCHAR(255),
+    morningTask TEXT,
+    afternoonTask TEXT,
+    suggestionBox TEXT
+  )
+`;
+
+db.query(createTableQuery, (err, result) => {
+  if (err) {
+    console.error('Error creating table:', err);
+    return;
+  }
+  console.log('Table created or already exists');
+});
+
+// Endpoint to handle employee login form submission
+app.post('/submit-login', (req, res) => {
+  const { date, loginTime, name, mobileNumber } = req.body;
+
+  const sql = 'INSERT INTO employee_table (date, loginTime, name, mobileNumber) VALUES (?, ?, ?, ?)';
+  db.query(sql, [date, loginTime, name, mobileNumber], (err, result) => {
+    if (err) {
+      console.error('Error inserting employee login data:', err);
+      res.status(500).json({ message: 'Error' });
+    } else {
+      console.log('Employee login data inserted successfully');
+      res.status(200).json({ message: 'Form submitted successfully!' });
+    }
+  });
+});
+
+// Endpoint to fetch all employee login data
+app.get('/employee-logins', (req, res) => {
+  const sql = 'SELECT * FROM employee_table';
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching employee login data:', err);
+      res.status(500).json({ message: 'Error' });
+    } else {
+      console.log('Employee login data fetched successfully');
+      res.status(200).json(result);
+    }
+  });
+});
+
+// Endpoint to handle employee logout form submission
+app.post('/submit-logout', (req, res) => {
+  const { date, logoutTime, name, mobileNumber, sessionType, morningTask, afternoonTask, suggestionBox } = req.body;
+
+  const sql = 'UPDATE employee_table SET logoutTime = ?, sessionType = ?, morningTask = ?, afternoonTask = ?, suggestionBox = ? WHERE date = ? AND name = ? AND mobileNumber = ?';
+  db.query(sql, [logoutTime, sessionType, morningTask, afternoonTask, suggestionBox, date, name, mobileNumber], (err, result) => {
+    if (err) {
+      console.error('Error updating employee logout data:', err);
+      res.status(500).json({ message: 'Error' });
+    } else {
+      console.log('Employee logout data updated successfully');
+      res.status(200).json({ message: 'Logout form submitted successfully!' });
+    }
+  });
+});
+
+
+module.exports = app;
+
+
