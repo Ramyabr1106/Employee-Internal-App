@@ -1,0 +1,46 @@
+/* AdminTable.css */
+.admin-table {
+    padding: 20px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.table th, .table td {
+    padding: 10px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #f2f2f2;
+}
+
+.next-button {
+    padding: 5px 10px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.next-button:hover {
+    background-color: #0b7dda;
+}
+
+.export-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.export-button:hover {
+    background-color: #45a049;
+}
+.admin{
+    padding-left: 40%;
+}
